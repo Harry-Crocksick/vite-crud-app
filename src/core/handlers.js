@@ -1,6 +1,13 @@
-import { renderRow, rowUi, toast, url } from "./functions";
+import {
+  confirmBox,
+  editRow,
+  removeRow,
+  renderRow,
+  rowUi,
+  toast,
+  url,
+} from "./functions";
 import { courseEditForm, courseForm, editDrawer, rowGroup } from "./selectors";
-import Swal from "sweetalert2";
 
 export function searchInputHandler(event) {
   event.target.previousElementSibling.innerHTML = `
@@ -123,44 +130,9 @@ export function courseFormHandler(event) {
 
 export function rowGroupHandler(event) {
   if (event.target.classList.contains("row-del")) {
-    const currentRow = event.target.closest("tr");
-    const currentRowId = currentRow.getAttribute("course-id");
-    Swal.fire({
-      title: "Are you sure?",
-      text: "You won't be able to revert this!",
-      icon: "warning",
-      showCancelButton: true,
-      confirmButtonColor: "#3085d6",
-      cancelButtonColor: "#d33",
-      confirmButtonText: "Yes, delete it!",
-    }).then((result) => {
-      if (result.isConfirmed) {
-        event.target.toggleAttribute("disabled");
-        fetch(url(`/courses/${currentRowId}`), {
-          method: "DELETE",
-        }).then((res) => {
-          event.target.toggleAttribute("disabled");
-          res.status === 204 && toast("Deleted successfully...!");
-          currentRow.remove();
-        });
-      }
-    });
+    removeRow(event.target.closest("tr").getAttribute("course-id"));
   } else if (event.target.classList.contains("row-edit")) {
-    const currentRow = event.target.closest("tr");
-    const currentRowId = currentRow.getAttribute("course-id");
-    event.target.toggleAttribute("disabled");
-
-    fetch(url(`/courses/${currentRowId}`))
-      .then((res) => res.json())
-      .then((result) => {
-        event.target.toggleAttribute("disabled");
-        courseEditForm.querySelector("#edit_course_id").value = result.id;
-        courseEditForm.querySelector("#edit_course_title").value = result.title;
-        courseEditForm.querySelector("#edit_short_name").value =
-          result.short_name;
-        courseEditForm.querySelector("#edit_course_fee").value = result.fee;
-        editDrawer.show();
-      });
+    editRow(event.target.closest("tr").getAttribute("course-id"));
   }
 }
 
